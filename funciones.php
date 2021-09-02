@@ -18,7 +18,7 @@
         }
     }
 
-    function validaPassword($var, $var2){
+    function validaPassword($var1, $var2){
         if (strcmp($var1, $var2) != 0){
             return false;
         } else {
@@ -73,7 +73,7 @@
 
     function resultBlock($errors){
         if(count($errors) > 0){
-            echo "<div id='error' class'alert alert-danger' role='alert'>
+            echo "<div id='error' class='alert alert-danger' role='alert'>
                 <a href='#' onclick=\"showHide('error');\">[X]</a>
                 <ul>";
             foreach($errors as $error){
@@ -99,12 +99,85 @@
         }
     }
 
+
     function enviarEmail($email, $nombre, $asunto, $cuerpo){
+    
+        $mail = new PHPMailer\PHPMailer\PHPMailer();
+        //Set mailer to use smtp
+        $mail->isSMTP();
+        //Define smtp host
+        $mail->Host = "smtp.gmail.com";
+        //Enable smtp authentication
+        $mail->SMTPAuth = true;
+        //Set smtp encryption type (ssl/tls)
+        $mail->SMTPSecure = "tls";
+        //Port to connect smtp
+        $mail->Port = "587";
+        //Set gmail username
+        $mail->Username = "cbq.alim@gmail.com";
+        //Set gmail password
+        $mail->Password = "31416BRAVO";
+        //Email subject
+        $mail->Subject = $asunto;
+        //Set sender email
+        $mail->setFrom("cbq.alim@gmail.com","Cristian Bravo");
+        //Enable HTML
+        $mail->isHTML(true);
+        //Attachment
+        $mail->addAttachment('img/attachment.png');
+        //Email body
+        $mail->Body = $cuerpo;
+        //Add recipient
+        $mail->addAddress($email);
+        //Finally send email
 
-        require_once 'PHPMailer/PHPMailerAutoload.php';
+        if ( $mail->send() ) {
+            echo '<script language="javascript">alert("Correo enviado con exito!");</script>';
+            echo '<script language="javascript">alert("Para terminar el proceso de registro siga las instrucciones que le hemos enviado al correo");</script>';
+        }else{
+            echo '<script language="javascript">alert("El correo de activacion no pudo ser enviado");</script>';;
+        }
+        //Closing smtp connection
+        $mail->smtpClose();
+    }
 
-        
+    function validaIdToken($id, $token){
+        global $mysqli;
 
+        $stmt = $mysqli->prepare("SELECT activacion FROM usuarios WHERE id = ? AND token = ? LIMIT 1");
+        $stmt->bind_param("is", $id, $token);
+        $stmt->execute();
+        $stmt->store_result();
+        $rows = $stmt->num_rows;
+
+        if($rows > 0) {
+            $stmt->bind_result($activacion);
+            $stmt->fetch();
+
+            if($activacion == 1){
+                $msg ="La cuenta ya se activo anteriormente";
+            } else {
+                if(activarUsuario($id)){
+                    $msg ='Cuenta activada';
+                } else {
+                    $msg = 'Error al activar la cuenta';
+                }
+            }
+
+        } else {
+            $msg = 'No existe el registro para activar';
+        }
+        return $msg;
+    }
+
+    function activarUsuario($id){
+        global $mysqli;
+
+        $stmt = $mysqli->prepare("UPDATE usuarios SET activacion=1 WHERE id = ?");
+        $stmt->bind_param("s", $id);
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
     }
 
 ?>

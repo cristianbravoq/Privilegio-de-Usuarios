@@ -2,6 +2,15 @@
     require 'conexion.php';
     require 'funciones.php';
 
+    //Include required PHPMailer files
+	require 'includes/PHPMailer.php';
+	require 'includes/SMTP.php';
+	require 'includes/Exception.php';
+    //Define name spaces
+	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\SMTP;
+	use PHPMailer\PHPMailer\Exception;
+
     ///////////// Registar usuario nuevo ////////////////
 
     $errors = array();
@@ -50,14 +59,16 @@
             $registro = registraUsuario($usuario, $pass_hash, $nombre, $email, $activo, $token, $tipo_usuario);
 
             if ($registro > 0){
-                $url = 'http://'.$_SERVER["SERVER_NAME"].'/login/activar.php?id='.$token;
-                $asunto = 'Actvar cuenta - Sistema de Usuarios'
-                $cuerpo = "Estimado $nombre: <br /><br />Para continuar con el proceso
-                            de registro, es indispensable dar click en el siguiente link
-                            <a href='$url'>Activar Cuenta</a>";
+
+                $url = 'http://'.$_SERVER["SERVER_NAME"].'/login/activar.php?id='.$registro.'&val='.$token;
+                $asunto = "Actvar cuenta - Sistema de Usuarios";
+                $cuerpo = "Estimado $nombre: <br /><br />Para continuar con el proceso de registro, 
+                        es indispensable dar click en el siguiente link  <a href='$url'>Activar Cuenta</a>";
+
+                enviarEmail($email, $nombre, $asunto, $cuerpo);
 
             } else {
-                $errors[] = "Error al registrar"
+                $errors[] = "Error al registrar";
             }
 
         }
@@ -79,7 +90,7 @@
     <title>I.E. El placer</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="assets/css/estilos.css"> -->
+    <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
 <body>
 
@@ -122,12 +133,13 @@
                     <input type="password" class="form-control" name="con_password" placeholder=" Confirmar contraseña" required>
                     <button id="btn-signup" class="btn btn-info" type="submit">Regístrarse</button>
                 </form>
+                <?php echo resultBlock($errors); ?>
             </div>
         </div>
 
     </main>
 
-<!-- <script src="assets/js/script.js"></script> -->
+<script src="assets/js/script.js"></script>
 
 </body>
 </html>
