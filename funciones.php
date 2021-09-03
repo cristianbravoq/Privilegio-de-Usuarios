@@ -114,13 +114,13 @@
         //Port to connect smtp
         $mail->Port = "587";
         //Set gmail username
-        $mail->Username = "cbq.alim@gmail.com";
+        $mail->Username = "email-emisor";
         //Set gmail password
-        $mail->Password = "31416BRAVO";
+        $mail->Password = "password-emisor";
         //Email subject
         $mail->Subject = $asunto;
         //Set sender email
-        $mail->setFrom("cbq.alim@gmail.com","Cristian Bravo");
+        $mail->setFrom("$email","$nombre");
         //Enable HTML
         $mail->isHTML(true);
         //Attachment
